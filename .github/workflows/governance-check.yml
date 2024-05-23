@@ -1,1 +1,31 @@
 
+name: Require Approvals and Checks
+
+on: [pull_request]
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+
+    # steps:
+    # - name: Checkout code
+    #   uses: actions/checkout@v2
+
+    # - name: Run Tests
+    #   run: |
+    #     # Add commands to run your tests here
+    #     echo "Running tests..."
+    #     # Example: npm install && npm test
+
+    - name: Check for required approvals
+      id: check-approvals
+      uses: actions-ecosystem/action-required-approvals@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        approvals: 2 # Set the required number of approvals here
+
+    - name: Ensure all checks pass
+      if: steps.check-approvals.outputs.approvals-satisfied != 'true'
+      run: |
+        echo "Not enough approvals. Please get more approvals before merging."
+        exit 1
